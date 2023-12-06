@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Reports.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Reports.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file This module defines a component for generating and displaying various reports.
+ * @module Reports
+ */
+
+import React, { useState, useEffect } from "react";
+import "../styles/managerView.css";
+
+/**
+ * The main component for generating and displaying various reports.
+ *
+ * @returns {JSX.Element} The rendered reports component.
+ */
+const Reports = () => {
+  const [selectedReport, setSelectedReport] = useState("");
+  const [reload, setReload] = useState(false);
+  const [excessData, setExcessData] = useState([]);
+  const [salesReportData, setSalesReportData] = useState([]);
+  const [restockData, setRestockData] = useState([]);
+  const [togetherData, setTogetherData] = useState([]);
+  const [salesReportInput, setSalesReportInput] = useState({
+    start_date: "",
+    end_date: "",
+  });
+
+  const [ExcessReportInput, setExcessReportInput] = useState({
+    query_date: "",
+    query_time: "",
+  });
+
+  const [togetherReportInput, setTogetherReportInput] = useState({
+    start_date: "",
+    end_date: "",
+  });
+
+  useEffect(() => {
+    if (selectedReport === "Sales") {
+      fetchSalesReportData();
+    }
+    if (selectedReport === "Excess") {
+      fetchExcessReportData();
+    }
+    if (selectedReport === "Restock") {
+      fetchRestockReportData();
+    }
+    if (selectedReport === "Together") {
+      fetchTogetherReportData();
+    }
+  }, [reload]);
+
+  /**
+   * Fetches sales report data based on the selected date range.
+   */
+  const fetchSalesReportData = async () => {
+    await fetch(
+      "http://localhost:5000/report/sales?start_date=" +
+        salesReportInput.start_date +
+        "&amp;end_date=" +
+        salesReportInput.end_date
+    )
+      .then((response) => response.json())
+      .then((data) => setSalesReportData(data))
+      .catch((error) => console.error("Error fetching sales report:", error));
+  };
+
+  /**
+   * Fetches excess report data based on the selected query date and time.
+   */
+  const fetchExcessReportData = async () => {
+    await fetch(
+      "http://localhost:5000/report/excess?query_date=" +
+        ExcessReportInput.query_date +
+        "&amp;query_time=" +
+        ExcessReportInput.query_time
+    )
+      .then((response) => response.json())
+      .then((data) => setExcessData(data))
+      .catch((error) => console.error("Error fetching sales report:", error));
+  };
+
+  /**
+   * Fetches restock report data.
+   */
+  const fetchRestockReportData = async () => {
+    await fetch("http://localhost:5000/report/restock")
+      .then((response) => response.json())
+      .then((data) => setRestockData(data))
+      .catch((error) => console.error("Error fetching restock data:", error));
+  };
+
+  /**
+   * Fetches together report data based on the selected date range.
+   */
+  const fetchTogetherReportData = async () => {
+    await fetch(
+      "http://localhost:5000/report/together?start_date=" +
+        togetherReportInput.start_date +
+        "&amp;end_date=" +
+        togetherReportInput.end_date
+    )
+      .then((response) => response.json())
+      .then((data) => setTogetherData(data))
+      .catch((error) => console.error("Error fetching sales report:", error));
+  };
+
+  /**
+   * Handles changes to the start date input for the sales report.
+   *
+   * @param {Event} e - The input change event.
+   */
+  function handleSalesStartDateChange(e) {
+    setSalesReportInput({
+      ...salesReportInput,
+      start_date: e.target.value,
+    });
+  }
+
+  /**
+   * Handles changes to the end date input for the sales report.
+   *
+   * @param {Event} e - The input change event.
+   */
+  function handleSalesEndDateChange(e) {
+    setSalesReportInput({
+      ...salesReportInput,
+      end_date: e.target.value,
+    });
+  }
+
+  /**
+   * Handles changes to the start date input for the together report.
+   *
+   * @param {Event} e - The input change event.
+   */
+  function handleTogetherStartDateChange(e) {
+    setTogetherReportInput({
+      ...togetherReportInput,
+      start_date: e.target.value,
+    });
+  }
+
+  /**
+   * Handles changes to the end date input for the together report.
+   *
+   * @param {Event} e - The input change event.
+   */
+  function handleTogetherEndDateChange(e) {
+    setTogetherReportInput({
+      ...togetherReportInput,
+      end_date: e.target.value,
+    });
+  }
+
+  /**
+   * Handles changes to the query date input for the excess report.
+   *
+   * @param {Event} e - The input change event.
+   */
+  function handleExcessDateChange(e) {
+    setExcessReportInput({
+      ...ExcessReportInput,
+      query_date: e.target.value,
+    });
+  }
+
+  /**
+   * Handles changes to the query time input for the excess report.
+   *
+   * @param {Event} e - The input change event.
+   */
+  function handleExcessTimeChange(e) {
+    setExcessReportInput({
+      ...ExcessReportInput,
+      query_time: e.target.value,
+    });
+  }
+
+  /**
+   * Handles the form submission button click.
+   */
+  function handleSubmitButtonClick() {
+    setReload(!reload);
+  }
+
+  /**
+   * Handles the click event for selecting a report option.
+   *
+   * @param {string} option - The selected report option.
+   */
+  function handleOptionClick(option) {
+    setSelectedReport(option);
+    setReload(!reload);
+  }
+
+  return (
+    &lt;div>
+      &lt;div className="CommandBar">
+        &lt;button
+          onClick={() => handleOptionClick("Sales")}
+          className={selectedReport === "Sales" ? "active" : ""}
+        >
+          Sales Report
+        &lt;/button>
+        &lt;button
+          onClick={() => handleOptionClick("Excess")}
+          className={selectedReport === "Excess" ? "active" : ""}
+        >
+          Excess Report
+        &lt;/button>
+        &lt;button
+          onClick={() => handleOptionClick("Restock")}
+          className={selectedReport === "Restock" ? "active" : ""}
+        >
+          Restock Report
+        &lt;/button>
+        &lt;button
+          onClick={() => handleOptionClick("Together")}
+          className={selectedReport === "Together" ? "active" : ""}
+        >
+          What Sells Together
+        &lt;/button>
+      &lt;/div>
+      &lt;div className="content">
+        {selectedReport === "Sales" &amp;&amp; (
+          &lt;>
+            &lt;div className="ReportInput">
+              &lt;label>
+                Start Date (YYYY-MM-DD):
+                &lt;input
+                  value={salesReportInput.start_date}
+                  onChange={handleSalesStartDateChange}
+                />
+              &lt;/label>
+              &lt;label>
+                End Date (YYYY-MM-DD):
+                &lt;input
+                  value={salesReportInput.end_date}
+                  onChange={handleSalesEndDateChange}
+                />
+              &lt;/label>
+            &lt;/div>
+            &lt;button className="submit-button" onClick={handleSubmitButtonClick}>
+              Submit
+            &lt;/button>
+            &lt;div className="inventoryList">
+              &lt;div className="gridContainer2">
+                &lt;div className="column">
+                  &lt;h3>Item&lt;/h3>
+                  &lt;ul>
+                    {salesReportData.map((item) => {
+                      return &lt;li>{item.item}&lt;/li>;
+                    })}
+                  &lt;/ul>
+                &lt;/div>
+                &lt;div className="column">
+                  &lt;h3>Total&lt;/h3>
+                  &lt;ul>
+                    {salesReportData.map((item) => {
+                      return &lt;li>{item.total}&lt;/li>;
+                    })}
+                  &lt;/ul>
+                &lt;/div>
+              &lt;/div>
+            &lt;/div>
+          &lt;/>
+        )}
+        {selectedReport === "Excess" &amp;&amp; (
+          &lt;>
+            &lt;div className="ReportInput">
+              &lt;label>
+                Query Date (YYYY-MM-DD):
+                &lt;input
+                  value={ExcessReportInput.query_date}
+                  onChange={handleExcessDateChange}
+                />
+              &lt;/label>
+              &lt;label>
+                Query Time (HH:mm:ss):
+                &lt;input
+                  value={ExcessReportInput.query_time}
+                  onChange={handleExcessTimeChange}
+                />
+              &lt;/label>
+            &lt;/div>
+            &lt;button className="submit-button" onClick={handleSubmitButtonClick}>
+              Submit
+            &lt;/button>
+            &lt;div className="inventoryList">
+              &lt;div className="gridContainer2">
+                &lt;div className="column">
+                  &lt;h3>Item&lt;/h3>
+                  &lt;ul>
+                    {excessData.map((item) => {
+                      return &lt;li>{item.ingredient}&lt;/li>;
+                    })}
+                  &lt;/ul>
+                &lt;/div>
+                &lt;div className="column">
+                  &lt;h3>Total Used&lt;/h3>
+                  &lt;ul>
+                    {excessData.map((item) => {
+                      return &lt;li>{item.quantity_used}&lt;/li>;
+                    })}
+                  &lt;/ul>
+                &lt;/div>
+              &lt;/div>
+            &lt;/div>
+          &lt;/>
+        )}
+        {selectedReport === "Restock" &amp;&amp; (
+          &lt;div className="ReportInput">
+            &lt;div className="inventoryList">
+              &lt;div className="gridContainer2">
+                &lt;div className="column">
+                  &lt;h3>Item&lt;/h3>
+                  &lt;ul>
+                    {restockData.map((item) => {
+                      return &lt;li>{item.unitname}&lt;/li>;
+                    })}
+                  &lt;/ul>
+                &lt;/div>
+                &lt;div className="column">
+                  &lt;h3>Quantity&lt;/h3>
+                  &lt;ul>
+                    {restockData.map((item) => {
+                      return &lt;li>{item.quantity}&lt;/li>;
+                    })}
+                  &lt;/ul>
+                &lt;/div>
+              &lt;/div>
+            &lt;/div>
+          &lt;/div>
+        )}
+        {selectedReport === "Together" &amp;&amp; (
+          &lt;>
+            &lt;div className="ReportInput">
+              &lt;label>
+                Start Date (YYYY-MM-DD):
+                &lt;input
+                  value={togetherReportInput.start_date}
+                  onChange={handleTogetherStartDateChange}
+                />
+              &lt;/label>
+              &lt;label>
+                End Date (YYYY-MM-DD):
+                &lt;input
+                  value={togetherReportInput.end_date}
+                  onChange={handleTogetherEndDateChange}
+                />
+              &lt;/label>
+            &lt;/div>
+
+            &lt;button className="submit-button" onClick={handleSubmitButtonClick}>
+              Submit
+            &lt;/button>
+            &lt;div className="inventoryList">
+              &lt;div className="gridContainer2">
+                &lt;div className="column">
+                  &lt;h3>Item&lt;/h3>
+                  &lt;ul>
+                    {togetherData.map((item) => {
+                      return &lt;li>{item.popular_pairs}&lt;/li>;
+                    })}
+                  &lt;/ul>
+                &lt;/div>
+                &lt;div className="column">
+                  &lt;h3>Total&lt;/h3>
+                  &lt;ul>
+                    {togetherData.map((item) => {
+                      return &lt;li>{item.frequency}&lt;/li>;
+                    })}
+                  &lt;/ul>
+                &lt;/div>
+              &lt;/div>
+            &lt;/div>
+          &lt;/>
+        )}
+      &lt;/div>
+    &lt;/div>
+  );
+};
+
+export default Reports;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-BrewedSeries.html">BrewedSeries</a></li><li><a href="module-BrewedSeriesCashier.html">BrewedSeriesCashier</a></li><li><a href="module-Cart.html">Cart</a></li><li><a href="module-CartService.html">CartService</a></li><li><a href="module-Cashier.html">Cashier</a></li><li><a href="module-CashierView.html">CashierView</a></li><li><a href="module-CoffeeSeries.html">CoffeeSeries</a></li><li><a href="module-CoffeeSeriesCashier.html">CoffeeSeriesCashier</a></li><li><a href="module-CreativeMixSeries.html">CreativeMixSeries</a></li><li><a href="module-CreativeMixSeriesCashier.html">CreativeMixSeriesCashier</a></li><li><a href="module-DeleteTab.html">DeleteTab</a></li><li><a href="module-DrinkSeries.html">DrinkSeries</a></li><li><a href="module-DrinkSeriesCashier.html">DrinkSeriesCashier</a></li><li><a href="module-Form.html">Form</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-ManagerView.html">ManagerView</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuItems.html">MenuItems</a></li><li><a href="module-MilkFoamSeries.html">MilkFoamSeries</a></li><li><a href="module-MilkFoamSeriesCashier.html">MilkFoamSeriesCashier</a></li><li><a href="module-MilkTeaSeries.html">MilkTeaSeries</a></li><li><a href="module-MilkTeaSeriesCashier.html">MilkTeaSeriesCashier</a></li><li><a href="module-NavBar.html">NavBar</a></li><li><a href="module-NotFound.html">NotFound</a></li><li><a href="module-ReportForms.html">ReportForms</a></li><li><a href="module-Reports.html">Reports</a></li><li><a href="module-SalesData.html">SalesData</a></li><li><a href="module-SeasonalSeries.html">SeasonalSeries</a></li><li><a href="module-SeasonalSeriesCashier.html">SeasonalSeriesCashier</a></li><li><a href="module-SlushSeries.html">SlushSeries</a></li><li><a href="module-SlushSeriesCashier.html">SlushSeriesCashier</a></li><li><a href="module-TeaLatteSeries.html">TeaLatteSeries</a></li><li><a href="module-TeaLatteSeriesCashier.html">TeaLatteSeriesCashier</a></li><li><a href="module-ToppingTest.html">ToppingTest</a></li><li><a href="module-Toppings.html">Toppings</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-ZoomControls.html">ZoomControls</a></li><li><a href="module-ZoomProvider.html">ZoomProvider</a></li><li><a href="module-checkoutTab.html">checkoutTab</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:50:00 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

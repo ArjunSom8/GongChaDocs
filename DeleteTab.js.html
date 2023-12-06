@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: DeleteTab.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: DeleteTab.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file This module defines the Form component for handling deletion of items from various tabs (Inventory, SalesData, Menu).
+ * @module DeleteTab
+ */
+
+import { useState } from "react";
+
+/**
+ * Functional component representing the Form for item deletion.
+ *
+ * @param {Object} props - The props for the component.
+ * @param {boolean} props.isOpen - Indicates whether the form is open.
+ * @param {function} props.onClose - Callback function to close the form.
+ * @param {string} props.tabOpen - The currently open tab (Inventory, SalesData, Menu).
+ * @returns {JSX.Element} The rendered Form component.
+ */
+export default function Form({ isOpen, onClose, tabOpen }) {
+  const [deleteInput, setDeleteInput] = useState({
+    id: "",
+  });
+
+  /**
+   * Handles changes in the input field for the item ID to delete.
+   *
+   * @param {Object} e - The event object.
+   */
+  function handleIDChange(e) {
+    setDeleteInput({
+      ...deleteInput,
+      id: e.target.value,
+    });
+  }
+
+  /**
+   * Handles the click event for the "Submit" button, sends a delete request to the appropriate API endpoint, and logs the result.
+   */
+  const handleSubmitButtonClick = async () => {
+    try {
+      if (tabOpen === "Inventory") {
+        const response = await fetch(
+          "http://localhost:5000/inventory/remove/" + deleteInput.id
+        );
+        if (response.ok) {
+          const result = await response.json();
+          console.log(result.message);
+        } else {
+          console.error(
+            "Failed to delete item:",
+            response.status,
+            response.statusText
+          );
+        }
+      } else if (tabOpen === "SalesData") {
+        const response = await fetch(
+          "http://localhost:5000/salesData/remove/" + deleteInput.id
+        );
+        if (response.ok) {
+          const result = await response.json();
+          console.log(result.message);
+        } else {
+          console.error(
+            "Failed to delete item:",
+            response.status,
+            response.statusText
+          );
+        }
+      } else if (tabOpen === "Menu") {
+        const response = await fetch(
+          "http://localhost:5000/items/remove/" + deleteInput.id
+        );
+        if (response.ok) {
+          const result = await response.json();
+          console.log(result.message);
+        } else {
+          console.error(
+            "Failed to delete item:",
+            response.status,
+            response.statusText
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error during deletion:", error);
+    } finally {
+      onClose();
+    }
+  };
+
+  return (
+    &lt;div className={`popup ${isOpen ? "open" : ""}`}>
+      &lt;div className="popup-content">
+        &lt;div className="deleteInput">
+          &lt;label>
+            ID of Item to Delete:
+            &lt;input value={deleteInput.id} onChange={handleIDChange} />
+          &lt;/label>
+        &lt;/div>
+
+        &lt;button className="submit-button" onClick={handleSubmitButtonClick}>
+          Submit
+        &lt;/button>
+        &lt;button className="close-button" onClick={onClose}>
+          Close
+        &lt;/button>
+      &lt;/div>
+    &lt;/div>
+  );
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-BrewedSeries.html">BrewedSeries</a></li><li><a href="module-BrewedSeriesCashier.html">BrewedSeriesCashier</a></li><li><a href="module-Cart.html">Cart</a></li><li><a href="module-CartService.html">CartService</a></li><li><a href="module-Cashier.html">Cashier</a></li><li><a href="module-CashierView.html">CashierView</a></li><li><a href="module-CoffeeSeries.html">CoffeeSeries</a></li><li><a href="module-CoffeeSeriesCashier.html">CoffeeSeriesCashier</a></li><li><a href="module-CreativeMixSeries.html">CreativeMixSeries</a></li><li><a href="module-CreativeMixSeriesCashier.html">CreativeMixSeriesCashier</a></li><li><a href="module-DeleteTab.html">DeleteTab</a></li><li><a href="module-DrinkSeries.html">DrinkSeries</a></li><li><a href="module-DrinkSeriesCashier.html">DrinkSeriesCashier</a></li><li><a href="module-Form.html">Form</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-ManagerView.html">ManagerView</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuItems.html">MenuItems</a></li><li><a href="module-MilkFoamSeries.html">MilkFoamSeries</a></li><li><a href="module-MilkFoamSeriesCashier.html">MilkFoamSeriesCashier</a></li><li><a href="module-MilkTeaSeries.html">MilkTeaSeries</a></li><li><a href="module-MilkTeaSeriesCashier.html">MilkTeaSeriesCashier</a></li><li><a href="module-NavBar.html">NavBar</a></li><li><a href="module-NotFound.html">NotFound</a></li><li><a href="module-ReportForms.html">ReportForms</a></li><li><a href="module-Reports.html">Reports</a></li><li><a href="module-SalesData.html">SalesData</a></li><li><a href="module-SeasonalSeries.html">SeasonalSeries</a></li><li><a href="module-SeasonalSeriesCashier.html">SeasonalSeriesCashier</a></li><li><a href="module-SlushSeries.html">SlushSeries</a></li><li><a href="module-SlushSeriesCashier.html">SlushSeriesCashier</a></li><li><a href="module-TeaLatteSeries.html">TeaLatteSeries</a></li><li><a href="module-TeaLatteSeriesCashier.html">TeaLatteSeriesCashier</a></li><li><a href="module-ToppingTest.html">ToppingTest</a></li><li><a href="module-Toppings.html">Toppings</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-ZoomControls.html">ZoomControls</a></li><li><a href="module-ZoomProvider.html">ZoomProvider</a></li><li><a href="module-checkoutTab.html">checkoutTab</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:50:00 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

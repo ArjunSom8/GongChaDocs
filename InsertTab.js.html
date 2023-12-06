@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: InsertTab.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: InsertTab.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file This module defines the Form component for inserting data into different tabs (Inventory, SalesData, Menu).
+ * @module Form
+ */
+
+import { useState } from "react";
+import axios from "axios";
+
+/**
+ * Functional component representing the InsertTab element.
+ *
+ * @param {object} props - The component's props.
+ * @param {boolean} props.isOpen - Indicates whether the InsertTab is open or not.
+ * @param {Function} props.onClose - Function to close the InsertTab.
+ * @param {string} props.tabOpen - The currently open tab (Inventory, SalesData, or Menu).
+ * @returns {JSX.Element} The rendered InsertTab component.
+ */
+export default function Form({ isOpen, onClose, tabOpen }) {
+  const [inventoryInput, setInventoryInput] = useState({
+    name: "",
+    quantity: "",
+    price: "",
+  });
+
+  const [menuInput, setMenuInput] = useState({
+    name: "",
+    price: "",
+    series: "",
+    ingredients: "",
+    image: "default.jpg",
+  });
+
+  const today = new Date();
+  const [salesInput, setSalesInput] = useState({
+    price: "",
+    date:
+      today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDay(),
+    time:
+      today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds(),
+    items: "",
+  });
+
+  function handleInventoryNameChange(e) {
+    setInventoryInput({
+      ...inventoryInput,
+      name: e.target.value,
+    });
+  }
+
+  function handleMenuNameChange(e) {
+    setMenuInput({
+      ...menuInput,
+      name: e.target.value,
+    });
+  }
+
+  function handleInventoryPriceChange(e) {
+    setInventoryInput({
+      ...inventoryInput,
+      price: e.target.value,
+    });
+  }
+
+  function handleMenuPriceChange(e) {
+    setMenuInput({
+      ...menuInput,
+      price: e.target.value,
+    });
+  }
+
+  function handleSalesPriceChange(e) {
+    setSalesInput({
+      ...salesInput,
+      price: e.target.value,
+    });
+  }
+
+  function handleQuantityChange(e) {
+    setInventoryInput({
+      ...inventoryInput,
+      quantity: e.target.value,
+    });
+  }
+
+  function handleSeriesChange(e) {
+    setMenuInput({
+      ...menuInput,
+      series: e.target.value,
+    });
+  }
+
+  function handleIngredientsChange(e) {
+    setMenuInput({
+      ...menuInput,
+      ingredients: e.target.value,
+    });
+  }
+
+  function handleImageChange(e) {
+    setMenuInput({
+      ...menuInput,
+      image: e.target.value,
+    });
+  }
+
+  function handleDateChange(e) {
+    setSalesInput({
+      ...salesInput,
+      date: e.target.value,
+    });
+  }
+
+  function handleTimeChange(e) {
+    setSalesInput({
+      ...salesInput,
+      time: e.target.value,
+    });
+  }
+
+  function handleItemChange(e) {
+    setSalesInput({
+      ...salesInput,
+      items: e.target.value,
+    });
+  }
+
+  const handleSubmitButtonClick = async () => {
+    try {
+      if (tabOpen === "Inventory") {
+        const response = await axios.post(
+          "http://localhost:5000/inventory/insert/?name=" +
+            inventoryInput.name +
+            "&amp;quantity=" +
+            inventoryInput.quantity +
+            "&amp;price=" +
+            inventoryInput.price
+        );
+        if (response.ok) {
+          const result = await response.json();
+          console.log(result.message);
+        } else {
+          console.error(
+            "Failed to insert:",
+            response.status,
+            response.statusText
+          );
+        }
+      } else if (tabOpen === "SalesData") {
+        const response = await axios.post(
+          "http://localhost:5000/orders/insert/?price=" +
+            salesInput.price +
+            "&amp;date=" +
+            salesInput.date +
+            "&amp;time=" +
+            salesInput.time +
+            "&amp;items=" +
+            salesInput.items
+        );
+        if (response.ok) {
+          const result = await response.json();
+          console.log(result.message);
+        } else {
+          console.error(
+            "Failed to insert:",
+            response.status,
+            response.statusText
+          );
+        }
+      } else if (tabOpen === "Menu") {
+        const response = await axios.post(
+          "http://localhost:5000/items/insert/?name=" +
+            menuInput.name +
+            "&amp;price=" +
+            menuInput.price +
+            "&amp;series=" +
+            menuInput.series +
+            "&amp;ingredients=" +
+            menuInput.ingredients +
+            "&amp;image=" +
+            menuInput.image
+        );
+        if (response.ok) {
+          const result = await response.json();
+          console.log(result.message);
+        } else {
+          console.error(
+            "Failed to insert:",
+            response.status,
+            response.statusText
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error during insert:", error);
+    } finally {
+      onClose();
+    }
+  };
+
+  return (
+    &lt;div className={`popup ${isOpen ? "open" : ""}`}>
+      &lt;div className="popup-content">
+        {tabOpen === "Inventory" &amp;&amp; (
+          &lt;div className="insertInput">
+            &lt;label>
+              Name:
+              &lt;input
+                value={inventoryInput.name}
+                onChange={handleInventoryNameChange}
+              />
+            &lt;/label>
+            &lt;label>
+              Quantity:
+              &lt;input
+                value={inventoryInput.quantity}
+                onChange={handleQuantityChange}
+              />
+            &lt;/label>
+            &lt;label>
+              Price:
+              &lt;input
+                value={inventoryInput.price}
+                onChange={handleInventoryPriceChange}
+              />
+            &lt;/label>
+          &lt;/div>
+        )}
+        {tabOpen === "SalesData" &amp;&amp; (
+          &lt;div className="insertInput">
+            &lt;label>
+              Price:
+              &lt;input
+                value={salesInput.price}
+                onChange={handleSalesPriceChange}
+              />
+            &lt;/label>
+            &lt;label>
+              Date:
+              &lt;input value={salesInput.date} onChange={handleDateChange} />
+            &lt;/label>
+            &lt;label>
+              Time:
+              &lt;input value={salesInput.time} onChange={handleTimeChange} />
+            &lt;/label>
+            &lt;label>
+              Items:
+              &lt;input value={salesInput.items} onChange={handleItemChange} />
+            &lt;/label>
+          &lt;/div>
+        )}
+        {tabOpen === "Menu" &amp;&amp; (
+          &lt;div className="insertInput">
+            &lt;label>
+              Name:
+              &lt;input value={menuInput.name} onChange={handleMenuNameChange} />
+            &lt;/label>
+            &lt;label>
+              Price:
+              &lt;input value={menuInput.price} onChange={handleMenuPriceChange} />
+            &lt;/label>
+            &lt;label>
+              Series:
+              &lt;input value={menuInput.series} onChange={handleSeriesChange} />
+            &lt;/label>
+            &lt;label>
+              Ingredients:
+              &lt;input
+                value={menuInput.ingredients}
+                onChange={handleIngredientsChange}
+              />
+            &lt;/label>
+            &lt;label>
+              Image:
+              &lt;input value={menuInput.image} onChange={handleImageChange} />
+            &lt;/label>
+          &lt;/div>
+        )}
+
+        &lt;button className="submit-button" onClick={handleSubmitButtonClick}>
+          Submit
+        &lt;/button>
+        &lt;button className="close-button" onClick={onClose}>
+          Close
+        &lt;/button>
+      &lt;/div>
+    &lt;/div>
+  );
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-BrewedSeries.html">BrewedSeries</a></li><li><a href="module-BrewedSeriesCashier.html">BrewedSeriesCashier</a></li><li><a href="module-Cart.html">Cart</a></li><li><a href="module-CartService.html">CartService</a></li><li><a href="module-Cashier.html">Cashier</a></li><li><a href="module-CashierView.html">CashierView</a></li><li><a href="module-CoffeeSeries.html">CoffeeSeries</a></li><li><a href="module-CoffeeSeriesCashier.html">CoffeeSeriesCashier</a></li><li><a href="module-CreativeMixSeries.html">CreativeMixSeries</a></li><li><a href="module-CreativeMixSeriesCashier.html">CreativeMixSeriesCashier</a></li><li><a href="module-DeleteTab.html">DeleteTab</a></li><li><a href="module-DrinkSeries.html">DrinkSeries</a></li><li><a href="module-DrinkSeriesCashier.html">DrinkSeriesCashier</a></li><li><a href="module-Form.html">Form</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-ManagerView.html">ManagerView</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuItems.html">MenuItems</a></li><li><a href="module-MilkFoamSeries.html">MilkFoamSeries</a></li><li><a href="module-MilkFoamSeriesCashier.html">MilkFoamSeriesCashier</a></li><li><a href="module-MilkTeaSeries.html">MilkTeaSeries</a></li><li><a href="module-MilkTeaSeriesCashier.html">MilkTeaSeriesCashier</a></li><li><a href="module-NavBar.html">NavBar</a></li><li><a href="module-NotFound.html">NotFound</a></li><li><a href="module-ReportForms.html">ReportForms</a></li><li><a href="module-Reports.html">Reports</a></li><li><a href="module-SalesData.html">SalesData</a></li><li><a href="module-SeasonalSeries.html">SeasonalSeries</a></li><li><a href="module-SeasonalSeriesCashier.html">SeasonalSeriesCashier</a></li><li><a href="module-SlushSeries.html">SlushSeries</a></li><li><a href="module-SlushSeriesCashier.html">SlushSeriesCashier</a></li><li><a href="module-TeaLatteSeries.html">TeaLatteSeries</a></li><li><a href="module-TeaLatteSeriesCashier.html">TeaLatteSeriesCashier</a></li><li><a href="module-ToppingTest.html">ToppingTest</a></li><li><a href="module-Toppings.html">Toppings</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-ZoomControls.html">ZoomControls</a></li><li><a href="module-ZoomProvider.html">ZoomProvider</a></li><li><a href="module-checkoutTab.html">checkoutTab</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:50:00 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

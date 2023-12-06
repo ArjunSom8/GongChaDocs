@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: MenuBoard.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: MenuBoard.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file This module defines the MenuBoard component that displays a menu board for a drink shop.
+ * @module MenuBoard
+ */
+
+// App.js
+import React from 'react';
+import '../App.css';
+
+/**
+ * Defines the menu items and their categories.
+ *
+ * @type {Object}
+ */
+const menuItems = {
+
+  houseSpecial: {
+    title: 'House Special',
+    imageUrl: "/img/blackMilkTea.jpg",
+    items: [
+    { id: 'A1', name: 'Gong Cha Milk Green Tea', price: 2.50 },
+    { id: 'A2', name: 'Gong Cha Milk Black Tea', price: 2.50 },
+    { id: 'A3', name: 'Gong Cha Milk Oolong Tea', price: 2.50 },
+    { id: 'A4', name: 'Gong Cha Milk Alisan Tea', price: 2.50 },
+    { id: 'A5', name: 'Gong Cha Milk Melon Tea', price: 2.80 },
+    { id: 'A6', name: 'Gong Cha Milk Camella Tea', price: 2.80 },
+    { id: 'A7', name: 'Gong Cha Milk Chocolate', price: 3.50 },
+    
+  ],
+
+},
+  brewedTea: {
+    title: 'Brewed Tea',
+    imageUrl: '/img/blackTea.jpg',
+    items:[
+    { id: 'B1', name: 'Taiwan Green Tea', price: 1.90 },
+    { id: 'B2', name: 'Alisan Tea', price: 1.90 },
+    { id: 'B3', name: 'Oolong Tea', price: 1.90 },
+    { id: 'B4', name: 'Longan Honey Tea', price: 2.20},
+    { id: 'B5', name: 'Melon Tea', price: 2.20 },
+    { id: 'B6', name: 'Camella Tea', price: 2.20 },
+    { id: 'B7', name: 'Purple Plum Tea', price: 2.20},
+    { id: 'B8', name: 'Taiwan Black Tea', price: 1.90 },
+    ],
+  },
+    
+
+  healthyDrinks: {
+    title: 'Healthy Drinks',
+    imageUrl: '/img/strawberryGreenTea.jpg',
+    items: [
+    { id: 'C1', name: 'Lemon Juice with Aloe Vera', price: 2.30 },
+    { id: 'C2', name: 'Lemon Juice with White Pearl', price: 2.50 },
+    { id: 'C3', name: 'Lemon Juice with Ai-Yu Jelly', price: 2.50 },
+    { id: 'C4', name: 'Lemon Kumquat Juice', price: 2.30 },
+    { id: 'C5', name: 'Ginger Lemon Juice', price: 2.30 },
+    { id: 'C6', name: 'Honey Lemon', price: 2.50 },
+    ],
+  },
+
+  creativeMixes: {
+    title: 'Creative Mixes',
+    imageUrl: '/img/wintermelonMilkTea.jpg',
+    items: [
+    { id: 'G1', name: 'Honey Green Tea', price: 2.50 },
+    { id: 'G2', name: 'Lemon Roasted Melon Tea', price: 2.50 },
+    { id: 'G3', name: 'Plum Green Tea', price: 2.50 },
+    { id: 'G4', name: 'Peach Green Tea', price: 2.50 },
+    { id: 'G5', name: 'Passion Fruit Green Tea', price: 2.50 },
+    { id: 'G6', name: 'Chocolate Milk', price: 2.80 },
+    { id: 'G7', name: 'Grape Milk', price: 2.80 },
+    { id: 'G8', name: 'Tarro Milk', price: 2.80 },
+    { id: 'G9', name: 'Golden Ovaltine', price: 2.80 },
+    { id: 'G10', name: 'Korean Citron Juice with Konjac Jelly', price: 3.00 },
+    { id: 'G11', name: 'Passion Fruit Juice with Cactus Jelly', price: 3.00 },
+    { id: 'G12', name: 'Cranberry Black Tea', price: 2.90 },
+    { id: 'G13', name: 'Lychee Allisan Tea', price: 2.90 },
+    { id: 'G14', name: 'Pineapple Allisan Tea', price: 2.90 },
+    { id: 'G15', name: 'Mango Green Tea', price: 2.90 },
+    { id: 'G16', name: 'Grape Camellia Tea', price: 2.90 },
+    { id: 'G17', name: 'Strawberry Black Tea', price: 2.90 },
+    ] 
+  },
+
+  calpisYogurt: {
+    title: 'Calpis and Yogurt',
+    imageUrl: '/img/mangoYogurt.jpg',
+    items: [
+      { id: 'H1', name: 'Calpis Green Tea', price: 3.30 },
+      { id: 'H2', name: 'Calpis Lemon Juice', price: 3.30 },
+      { id: 'H3', name: 'Calpis Cranberry Juice', price: 3.30 },
+      { id: 'H4', name: 'Green Tea Yogurt', price: 3.00 },
+      { id: 'H5', name: 'Lemon Yogurt', price: 3.00 },
+      { id: 'H6', name: 'Mango Yogurt', price: 2.50 },
+      { id: 'H7', name: 'Strawberry Yogurt', price: 2.50 },
+    ]
+    
+  },
+
+  fruitTea: {
+    title: 'Fruit Tea',
+    imageUrl: '/img/lycheeOolong.jpg',
+    items: [
+      { id: 'J1', name: 'Summer Fruit Tea', price: 3.00 },
+      { id: 'J2', name: 'Cranberry Fruit Tea with Aloe Vera', price: 3.60 },
+      { id: 'J3', name: 'Lychee Fruit Tea with White Pearls', price: 3.60 },
+      { id: 'J4', name: 'Pineapple Fruit Tea with Coconut Jelly', price: 3.60 },
+      { id: 'J5', name: 'Peach Fruit Tea with Figs', price: 3.60 },
+      { id: 'J6', name: 'Kongju Jelly', price: 3.60 },
+      { id: 'J7', name: 'Mango Fruit Tea with Basil Seeds', price: 3.60 },
+      { id: 'J8', name: 'Grape Fruit Tea', price: 3.60 },
+      { id: 'J9', name: 'Strawberry Fruit Tea with Basil Seeds', price: 3.60 },
+  
+    ]
+  },
+    
+  milkTea: {
+    title: "Milk Tea",
+    imageUrl: '/img/taroMilk.jpg',
+    items: [
+      { id: 'D1', name: 'Milk Tea', price: 2.20 },
+      { id: 'D2', name: 'Milk Green Tea', price: 2.20 },
+      { id: 'D3', name: 'Milk Oolong Tea', price: 2.20 },
+      { id: 'D4', name: 'Milk Black Tea', price: 2.20 },
+      { id: 'D5', name: 'Milk Tea with Herbal Jelly', price: 2.50 },
+      { id: 'D6', name: 'Caramel Milk Tea', price: 2.50 },
+      { id: 'D7', name: 'Honey Milk Tea', price: 2.50 },
+      { id: 'D8', name: 'Ginger Milk Tea', price: 2.50 },
+      { id: 'D9', name: 'Earl Grey Milk Tea with 3J', price: 2.80 },
+      { id: 'D10', name: 'Mona Earl Grey Milk Tea', price: 2.80 },
+    ]
+  },
+    
+};
+
+/**
+ * Renders a single menu item.
+ *
+ * @param {Object} props - The component's props.
+ * @param {Object} props.item - The menu item to render.
+ * @returns {JSX.Element} The rendered menu item.
+ */
+function MenuItem({ item }) {
+  return (
+    &lt;div className="menu-item">
+      &lt;div className="menu-item-name">{item.name}&lt;/div>
+      &lt;div className="menu-item-price">${item.price.toFixed(2)}&lt;/div>
+    &lt;/div>
+  );
+}
+
+/**
+ * Renders a banner for a menu category.
+ *
+ * @param {Object} props - The component's props.
+ * @param {string} props.imageUrl - The URL of the category's banner image.
+ * @param {string} props.title - The title of the category.
+ * @returns {JSX.Element} The rendered category banner.
+ */
+function CategoryBanner({ imageUrl, title }) {
+  return (
+    &lt;div className="category-banner">
+      &lt;img src={imageUrl} alt={title} className="category-banner-image" />
+      &lt;h2 className="category-title">{title}&lt;/h2>
+    &lt;/div>
+  );
+}
+
+/**
+ * Renders a menu category and its items.
+ *
+ * @param {Object} props - The component's props.
+ * @param {Object} props.category - The menu category to render.
+ * @returns {JSX.Element} The rendered menu category.
+ */
+function Category({ category }) {
+  return (
+    &lt;div className="menu-category">
+      &lt;CategoryBanner imageUrl={category.imageUrl} title={category.title} />
+      {category.items.map(item => (
+        &lt;MenuItem key={item.id} item={item} />
+      ))}
+    &lt;/div>
+  );
+}
+
+/**
+ * Renders the entire menu board with categories and items.
+ *
+ * @returns {JSX.Element} The rendered menu board.
+ */
+function MenuBoard() {
+  return (
+    &lt;div className="menu-board">
+      {Object.values(menuItems).map((category, index) => (
+        &lt;Category key={index} category={category} />
+      ))}
+    &lt;/div>
+  );
+}
+
+/**
+ * The main application component for the Gong Cha menu board.
+ *
+ * @returns {JSX.Element} The rendered application component.
+ */
+function App() {
+
+  /**
+   * The list of images displayed on the left side of the application.
+   *
+   * @type {string[]}
+   */
+  const leftSideImages = [
+    "/img/gongCha.jpg",
+    "/img/gongCha2.jpg",
+    "/img/gongCha3.jpg",
+    "/img/gongCha4.png",
+    "/img/gongCha5.jpg",
+    "/img/gongCha6.jpg",
+    "/img/gongCha7.png",
+    "/img/gongCha8.jpg",
+    "/img/gongCha9.jpg",
+    "/img/gongCha10.jpeg",
+    "/img/gongCha11.jpg"
+
+  ];
+
+  return (
+    &lt;div className="App">
+      &lt;header className="app-header">
+        &lt;h1>Gong Cha Menu Board&lt;/h1>
+      &lt;/header>
+      &lt;div className="layout">
+        &lt;div className="vertical-image-section">
+          {leftSideImages.map((imgSrc, index) => (
+            &lt;img key={index} src={imgSrc} alt={`Vertical ${index + 1}`} />
+          ))}
+        &lt;/div>
+        &lt;div className="menu-board-section">
+          &lt;MenuBoard />
+        &lt;/div>
+      &lt;/div>
+    &lt;/div>
+  );
+}
+
+
+export default App;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-BrewedSeries.html">BrewedSeries</a></li><li><a href="module-BrewedSeriesCashier.html">BrewedSeriesCashier</a></li><li><a href="module-Cart.html">Cart</a></li><li><a href="module-CartService.html">CartService</a></li><li><a href="module-Cashier.html">Cashier</a></li><li><a href="module-CashierView.html">CashierView</a></li><li><a href="module-CoffeeSeries.html">CoffeeSeries</a></li><li><a href="module-CoffeeSeriesCashier.html">CoffeeSeriesCashier</a></li><li><a href="module-CreativeMixSeries.html">CreativeMixSeries</a></li><li><a href="module-CreativeMixSeriesCashier.html">CreativeMixSeriesCashier</a></li><li><a href="module-DeleteTab.html">DeleteTab</a></li><li><a href="module-DrinkSeries.html">DrinkSeries</a></li><li><a href="module-DrinkSeriesCashier.html">DrinkSeriesCashier</a></li><li><a href="module-Form.html">Form</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-ManagerView.html">ManagerView</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuItems.html">MenuItems</a></li><li><a href="module-MilkFoamSeries.html">MilkFoamSeries</a></li><li><a href="module-MilkFoamSeriesCashier.html">MilkFoamSeriesCashier</a></li><li><a href="module-MilkTeaSeries.html">MilkTeaSeries</a></li><li><a href="module-MilkTeaSeriesCashier.html">MilkTeaSeriesCashier</a></li><li><a href="module-NavBar.html">NavBar</a></li><li><a href="module-NotFound.html">NotFound</a></li><li><a href="module-ReportForms.html">ReportForms</a></li><li><a href="module-Reports.html">Reports</a></li><li><a href="module-SalesData.html">SalesData</a></li><li><a href="module-SeasonalSeries.html">SeasonalSeries</a></li><li><a href="module-SeasonalSeriesCashier.html">SeasonalSeriesCashier</a></li><li><a href="module-SlushSeries.html">SlushSeries</a></li><li><a href="module-SlushSeriesCashier.html">SlushSeriesCashier</a></li><li><a href="module-TeaLatteSeries.html">TeaLatteSeries</a></li><li><a href="module-TeaLatteSeriesCashier.html">TeaLatteSeriesCashier</a></li><li><a href="module-ToppingTest.html">ToppingTest</a></li><li><a href="module-Toppings.html">Toppings</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-ZoomControls.html">ZoomControls</a></li><li><a href="module-ZoomProvider.html">ZoomProvider</a></li><li><a href="module-checkoutTab.html">checkoutTab</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:50:00 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: report.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: report.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file Module for generating reports and related operations.
+ * @module Reports
+ */
+
+const express = require("express");
+const router = express.Router();
+const pool = require("../db");
+
+process.on("SIGINT", function () {
+  pool.end();
+  console.log("Application successfully shutdown");
+  process.exit(0);
+});
+
+router.use(express.json());
+
+
+/**
+ * Route for retrieving all reports.
+ *
+ * @name GET /reports/get
+ * @function
+ * @returns {Array} An array of all report items.
+ */
+const reportInput = [];
+
+router.get("/get", (req, res) => {
+  res.json(cartItems);
+});
+
+/**
+ * Route for retrieving sales report within a specified date range.
+ *
+ * @name GET /reports/sales
+ * @function
+ * @param {string} req.query.start_date - The start date of the date range.
+ * @param {string} req.query.end_date - The end date of the date range.
+ * @returns {Array} An array of sales report items within the specified date range.
+ */
+router.get("/sales", async (req, res) => {
+  //   String Query = "WITH order_items_split AS (SELECT orderid, unnest(string_to_array(orderitems, ', ')) AS item FROM orders WHERE orderday BETWEEN '"
+  //                           + start_Date.getText() + "' AND '" + end_Date.getText()
+  //                           + "') select item, count(*) as Total from order_items_split group by item ORDER BY Total DESC;";
+  try {
+    const query_res = await pool.query(
+      "WITH order_items_split AS (SELECT orderid, unnest(string_to_array(orderitems, ', ')) AS item FROM orders WHERE orderday BETWEEN $1 AND $2) select item, count(*) as Total from order_items_split group by item ORDER BY Total DESC;",
+      [req.query.start_date, req.query.end_date]
+    );
+    res.json(query_res.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+/**
+ * Route for retrieving items that need restocking (quantity &lt; 200).
+ *
+ * @name GET /reports/restock
+ * @function
+ * @returns {Array} An array of items that need restocking (quantity &lt; 200).
+ */
+router.get("/restock", async (req, res) => {
+  try {
+    const query_res = await pool.query(
+      "select unitname, quantity from inventory where quantity&lt;200"
+    );
+    res.json(query_res.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+/**
+ * Route for retrieving excess inventory items.
+ *
+ * @name GET /reports/excess
+ * @function
+ * @param {string} req.query.query_date - The query date for excess inventory items.
+ * @param {string} req.query.query_time - The query time for excess inventory items.
+ * @returns {Array} An array of excess inventory items.
+ */
+router.get("/excess", async (req, res) => {
+  //   String query = "with order_items_split as (select unnest(string_to_array(orderitems, ', ')) as item from orders where (orderday + ordertime) BETWEEN (date '"
+  // +query_Date.getText() +
+  //   "' + time '" +
+  //   query_Time.getText() +
+  //   "') AND (date '" +
+  //   java.time.LocalDate.now().toString() +
+  //   "' + time '" +
+  //   java.time.LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) +
+  //   "')), items_and_ingredients as (select DISTINCT itemname, ingredients from items), ingredients_used as (select unnest(string_to_array(item_ingredients, ', ')) as ingredient FROM (select join1.item as orderitem, join2.ingredients as item_ingredients from order_items_split join1 JOIN items_and_ingredients join2 on join1.item=join2.itemname) as foo), ingredient_freq as (select ingredient, count(*) as Total from ingredients_used group by ingredient), inventory_quantity as (select unitname, quantity from inventory), inventory_freq_quantity as (select if.ingredient, if.total as quantity_used, iq.quantity from ingredient_freq if JOIN inventory_quantity iq on iq.unitname=if.ingredient) select ingredient, quantity_used from inventory_freq_quantity where (quantity_used::float/(quantity_used + quantity)::float) &lt; 0.1";
+  try {
+    const today = new Date();
+    const cur_date =
+      today.getFullYear() +
+      "-" +
+      (today.getMonth() + 1) +
+      "-" +
+      today.getDate();
+    const cur_time =
+      today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+    const query_res = await pool.query(
+      "with order_items_split as (select unnest(string_to_array(orderitems, ', ')) as item from orders where (orderday + ordertime) BETWEEN (date '" +
+        req.query.query_date +
+        "' + time '" +
+        req.query.query_time +
+        "') AND (date '" +
+        cur_date +
+        "' + time '" +
+        cur_time +
+        "')), items_and_ingredients as (select DISTINCT itemname, ingredients from items), ingredients_used as (select unnest(string_to_array(item_ingredients, ', ')) as ingredient FROM (select join1.item as orderitem, join2.ingredients as item_ingredients from order_items_split join1 JOIN items_and_ingredients join2 on join1.item=join2.itemname) as foo), ingredient_freq as (select ingredient, count(*) as Total from ingredients_used group by ingredient), inventory_quantity as (select unitname, quantity from inventory), inventory_freq_quantity as (select if.ingredient, if.total as quantity_used, iq.quantity from ingredient_freq if JOIN inventory_quantity iq on iq.unitname=if.ingredient) select ingredient, quantity_used from inventory_freq_quantity where (quantity_used::float/(quantity_used + quantity)::float) &lt; 0.1"
+    );
+    res.json(query_res.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+/**
+ * Route for retrieving popular item pairs sold together within a specified date range.
+ *
+ * @name GET /reports/together
+ * @function
+ * @param {string} req.query.start_date - The start date of the date range.
+ * @param {string} req.query.end_date - The end date of the date range.
+ * @returns {Array} An array of popular item pairs sold together within the specified date range.
+ */
+router.get("/together", async (req, res) => {
+  // String Query = "WITH order_items_split AS (SELECT orderid, unnest(string_to_array(orderitems, ', ')) AS item FROM orders WHERE orderday BETWEEN '"
+  //                           + start_Date.getText() + "' AND '" + end_Date.getText()
+  //                           + "') SELECT item1 || ', ' || item2 AS Popular_Pairs, count(*) AS frequency FROM (SELECT oi1.item AS item1, oi2.item AS item2 FROM order_items_split oi1 JOIN order_items_split oi2 ON oi1.orderid = oi2.orderid WHERE oi1.item &lt; oi2.item) AS pairs GROUP BY item1, item2 ORDER BY frequency DESC;"
+  try {
+    const query_res = await pool.query(
+      "WITH order_items_split AS (SELECT orderid, unnest(string_to_array(orderitems, ', ')) AS item FROM orders WHERE orderday BETWEEN $1 AND $2) SELECT item1 || ', ' || item2 AS Popular_Pairs, count(*) AS frequency FROM (SELECT oi1.item AS item1, oi2.item AS item2 FROM order_items_split oi1 JOIN order_items_split oi2 ON oi1.orderid = oi2.orderid WHERE oi1.item &lt; oi2.item) AS pairs GROUP BY item1, item2 ORDER BY frequency DESC;",
+      [req.query.start_date, req.query.end_date]
+    );
+    res.json(query_res.rows);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+module.exports = router;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-BrewedSeries.html">BrewedSeries</a></li><li><a href="module-BrewedSeriesCashier.html">BrewedSeriesCashier</a></li><li><a href="module-Cart.html">Cart</a></li><li><a href="module-CartService.html">CartService</a></li><li><a href="module-Cashier.html">Cashier</a></li><li><a href="module-CashierView.html">CashierView</a></li><li><a href="module-CoffeeSeries.html">CoffeeSeries</a></li><li><a href="module-CoffeeSeriesCashier.html">CoffeeSeriesCashier</a></li><li><a href="module-CreativeMixSeries.html">CreativeMixSeries</a></li><li><a href="module-CreativeMixSeriesCashier.html">CreativeMixSeriesCashier</a></li><li><a href="module-DeleteTab.html">DeleteTab</a></li><li><a href="module-DrinkSeries.html">DrinkSeries</a></li><li><a href="module-DrinkSeriesCashier.html">DrinkSeriesCashier</a></li><li><a href="module-Form.html">Form</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-ManagerView.html">ManagerView</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuItems.html">MenuItems</a></li><li><a href="module-MilkFoamSeries.html">MilkFoamSeries</a></li><li><a href="module-MilkFoamSeriesCashier.html">MilkFoamSeriesCashier</a></li><li><a href="module-MilkTeaSeries.html">MilkTeaSeries</a></li><li><a href="module-MilkTeaSeriesCashier.html">MilkTeaSeriesCashier</a></li><li><a href="module-NavBar.html">NavBar</a></li><li><a href="module-NotFound.html">NotFound</a></li><li><a href="module-ReportForms.html">ReportForms</a></li><li><a href="module-Reports.html">Reports</a></li><li><a href="module-SalesData.html">SalesData</a></li><li><a href="module-SeasonalSeries.html">SeasonalSeries</a></li><li><a href="module-SeasonalSeriesCashier.html">SeasonalSeriesCashier</a></li><li><a href="module-SlushSeries.html">SlushSeries</a></li><li><a href="module-SlushSeriesCashier.html">SlushSeriesCashier</a></li><li><a href="module-TeaLatteSeries.html">TeaLatteSeries</a></li><li><a href="module-TeaLatteSeriesCashier.html">TeaLatteSeriesCashier</a></li><li><a href="module-ToppingTest.html">ToppingTest</a></li><li><a href="module-Toppings.html">Toppings</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-ZoomControls.html">ZoomControls</a></li><li><a href="module-ZoomProvider.html">ZoomProvider</a></li><li><a href="module-checkoutTab.html">checkoutTab</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:50:00 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

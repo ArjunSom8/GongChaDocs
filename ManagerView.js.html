@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: ManagerView.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: ManagerView.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file This module defines the ManagerView component for managing inventory, sales data, and menu items.
+ * @module ManagerView
+ */
+
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import "../styles/managerView.css";
+import InsertTab from "./InsertTab";
+import DeleteTab from "./DeleteTab";
+import Reports from "./Reports.js";
+
+/**
+ * Functional component representing the ManagerView.
+ *
+ * @returns {JSX.Element} The rendered ManagerView component.
+ */
+const ManagerView = () => {
+  const [selectedOption, setSelectedOption] = useState("Inventory");
+  const [inventory, setInventory] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
+  const [salesData, setSalesData] = useState([]);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [reload, setReload] = useState(false);
+  const [isInsertPopupOpen, setIsInsertPopupOpen] = useState(false);
+  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
+
+  useEffect(() => {
+    if (selectedOption === "Inventory") {
+      fetchInventory();
+    }
+    if (selectedOption === "Menu") {
+      fetchMenuItems();
+    }
+    if (selectedOption === "SalesData") {
+      fetchSalesData();
+    }
+  }, [reload]);
+
+  /**
+   * Fetches menu items from the server.
+   */
+  const fetchMenuItems = () => {
+    fetch("http://localhost:5000/items/get")
+      .then((response) => response.json())
+      .then((data) => setMenuItems(data))
+      .catch((error) => console.error("Error fetching menu items:", error));
+  };
+
+  /**
+   * Fetches inventory data from the server.
+   */
+  const fetchInventory = () => {
+    fetch("http://localhost:5000/inventory/get")
+      .then((response) => response.json())
+      .then((data) => setInventory(data))
+      .catch((error) => console.error("Error fetching inventory data:", error));
+  };
+
+  /**
+   * Fetches sales data from the server.
+   */
+  const fetchSalesData = () => {
+    fetchMoreData();
+  };
+
+  /**
+   * Fetches more sales data from the server.
+   */
+  const fetchMoreData = () => {
+    if (!loading) {
+      setLoading(true);
+      fetch(`http://localhost:5000/orders/get?page=${pageNumber}`)
+        .then((response) => response.json())
+        .then((data) => {
+          setSalesData([...salesData, ...data]);
+          setPageNumber(pageNumber + 1);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching more data:", error);
+          setLoading(false);
+        });
+    }
+  };
+
+  /**
+   * Opens the insert data popup.
+   */
+  const insertButton = () => {
+    closeDeletePopup();
+    setIsInsertPopupOpen(true);
+  };
+
+  /**
+   * Closes the insert data popup and triggers a data reload.
+   */
+  const closeInsertPopup = () => {
+    setIsInsertPopupOpen(false);
+    setReload(!reload);
+  };
+
+  /**
+   * Opens the delete data popup.
+   */
+  const deleteButton = () => {
+    closeInsertPopup();
+    setIsDeletePopupOpen(true);
+  };
+
+  /**
+   * Closes the delete data popup and triggers a data reload.
+   */
+  const closeDeletePopup = () => {
+    setIsDeletePopupOpen(false);
+    setReload(!reload);
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  });
+
+  /**
+   * Handles the scroll event to load more data when reaching the bottom of the page.
+   */
+  const handleScroll = () => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop ===
+      document.documentElement.offsetHeight
+    ) {
+      fetchMoreData();
+    }
+  };
+
+  /**
+   * Handles the option click event to switch between Inventory, Sales Data, Menu, and Reports.
+   *
+   * @param {string} option - The selected option (Inventory, SalesData, Menu, or Reports).
+   */
+  const handleOptionClick = (option) => {
+    setSelectedOption(option);
+  };
+
+  return (
+    &lt;div>
+      &lt;h1 className="Title">Manager View&lt;/h1>
+      &lt;Link to="/" className="GoToHomeButton">
+        Home
+      &lt;/Link>
+      &lt;div className="ManagerBar">
+        &lt;button
+          onClick={() => handleOptionClick("Inventory")}
+          className={selectedOption === "Inventory" ? "active" : ""}
+        >
+          Inventory
+        &lt;/button>
+        &lt;button
+          onClick={() => handleOptionClick("SalesData")}
+          className={selectedOption === "SalesData" ? "active" : ""}
+        >
+          Sales Data
+        &lt;/button>
+        &lt;button
+          onClick={() => handleOptionClick("Menu")}
+          className={selectedOption === "Menu" ? "active" : ""}
+        >
+          Menu
+        &lt;/button>
+        &lt;button
+          onClick={() => handleOptionClick("Reports")}
+          className={selectedOption === "Reports" ? "active" : ""}
+        >
+          Reports
+        &lt;/button>
+      &lt;/div>
+
+      {selectedOption !== "Reports" &amp;&amp; (
+        &lt;div className="CommandBar">
+          &lt;button onClick={() => insertButton()}>Insert&lt;/button>
+          &lt;button onClick={() => deleteButton()}>Delete&lt;/button>
+        &lt;/div>
+      )}
+
+      &lt;div className="content">
+        {selectedOption === "Inventory" &amp;&amp; (
+          &lt;div className="inventoryList">
+            &lt;div className="gridContainer2">
+              &lt;div className="column">
+                &lt;h3>ID&lt;/h3>
+                &lt;ul>
+                  {inventory.map((item) => (
+                    &lt;li>{item.unitid}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+              &lt;div className="column">
+                &lt;h3>Unit Name&lt;/h3>
+                &lt;ul>
+                  {inventory.map((item) => (
+                    &lt;li>{item.unitname}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+              &lt;div className="column">
+                &lt;h3>Quantity&lt;/h3>
+                &lt;ul>
+                  {inventory.map((item) => (
+                    &lt;li>{item.quantity}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+              &lt;div className="column">
+                &lt;h3>PPU&lt;/h3>
+                &lt;ul>
+                  {inventory.map((item) => (
+                    &lt;li>{item.priceperunit}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+            &lt;/div>
+          &lt;/div>
+        )}
+        {selectedOption === "SalesData" &amp;&amp; (
+          &lt;div className="salesDataList">
+            &lt;div className="gridContainer3">
+              &lt;div className="column">
+                &lt;h3>ID&lt;/h3>
+                &lt;ul>
+                  {salesData.map((item) => (
+                    &lt;li>{item.orderid}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+              &lt;div className="column">
+                &lt;h3># of Items&lt;/h3>
+                &lt;ul>
+                  {salesData.map((item) => (
+                    &lt;li>{item.numitems}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+              &lt;div className="column">
+                &lt;h3>Price&lt;/h3>
+                &lt;ul>
+                  {salesData.map((item) => (
+                    &lt;li>{item.totalprice}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+              &lt;div className="column">
+                &lt;h3>Day&lt;/h3>
+                &lt;ul>
+                  {salesData.map((item) => (
+                    &lt;li>{item.orderday.split("T")[0]}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+              &lt;div className="column">
+                &lt;h3>Time&lt;/h3>
+                &lt;ul>
+                  {salesData.map((item) => (
+                    &lt;li>{item.ordertime}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+              &lt;div className="column">
+                &lt;h3>Items&lt;/h3>
+                &lt;ul>
+                  {salesData.map((item) => (
+                    &lt;li>{item.orderitems}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+            &lt;/div>
+          &lt;/div>
+        )}
+        {selectedOption === "Menu" &amp;&amp; (
+          &lt;div className="MenuItemsList">
+            &lt;div className="gridContainer">
+              &lt;div className="column">
+                &lt;h3>ID&lt;/h3>
+                &lt;ul>
+                  {menuItems.map((item) => (
+                    &lt;li>{item.itemid}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+              &lt;div className="column">
+                &lt;h3>Item Name&lt;/h3>
+                &lt;ul>
+                  {menuItems.map((item) => (
+                    &lt;li>{item.itemname}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+              &lt;div className="column">
+                &lt;h3>Size&lt;/h3>
+                &lt;ul>
+                  {menuItems.map((item) => (
+                    &lt;li>{item.size}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+              &lt;div className="column">
+                &lt;h3>Price&lt;/h3>
+                &lt;ul>
+                  {menuItems.map((item) => (
+                    &lt;li>{item.price}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+              &lt;div className="column">
+                &lt;h3>Series&lt;/h3>
+                &lt;ul>
+                  {menuItems.map((item) => (
+                    &lt;li>{item.series}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+              &lt;div className="column">
+                &lt;h3>Ingredients&lt;/h3>
+                &lt;ul>
+                  {menuItems.map((item) => (
+                    &lt;li>{item.ingredients}&lt;/li>
+                  ))}
+                &lt;/ul>
+              &lt;/div>
+            &lt;/div>
+          &lt;/div>
+        )}
+        {selectedOption === "Reports" &amp;&amp; &lt;Reports />}
+        {isInsertPopupOpen &amp;&amp; (
+          &lt;InsertTab
+            className="InsertThing"
+            onClose={closeInsertPopup}
+            tabOpen={selectedOption}
+          />
+        )}
+        {isDeletePopupOpen &amp;&amp; (
+          &lt;DeleteTab
+            className="DeleteThing"
+            onClose={closeDeletePopup}
+            tabOpen={selectedOption}
+          />
+        )}
+      &lt;/div>
+    &lt;/div>
+  );
+};
+
+export default ManagerView;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-BrewedSeries.html">BrewedSeries</a></li><li><a href="module-BrewedSeriesCashier.html">BrewedSeriesCashier</a></li><li><a href="module-Cart.html">Cart</a></li><li><a href="module-CartService.html">CartService</a></li><li><a href="module-Cashier.html">Cashier</a></li><li><a href="module-CashierView.html">CashierView</a></li><li><a href="module-CoffeeSeries.html">CoffeeSeries</a></li><li><a href="module-CoffeeSeriesCashier.html">CoffeeSeriesCashier</a></li><li><a href="module-CreativeMixSeries.html">CreativeMixSeries</a></li><li><a href="module-CreativeMixSeriesCashier.html">CreativeMixSeriesCashier</a></li><li><a href="module-DeleteTab.html">DeleteTab</a></li><li><a href="module-DrinkSeries.html">DrinkSeries</a></li><li><a href="module-DrinkSeriesCashier.html">DrinkSeriesCashier</a></li><li><a href="module-Form.html">Form</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-ManagerView.html">ManagerView</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuItems.html">MenuItems</a></li><li><a href="module-MilkFoamSeries.html">MilkFoamSeries</a></li><li><a href="module-MilkFoamSeriesCashier.html">MilkFoamSeriesCashier</a></li><li><a href="module-MilkTeaSeries.html">MilkTeaSeries</a></li><li><a href="module-MilkTeaSeriesCashier.html">MilkTeaSeriesCashier</a></li><li><a href="module-NavBar.html">NavBar</a></li><li><a href="module-NotFound.html">NotFound</a></li><li><a href="module-ReportForms.html">ReportForms</a></li><li><a href="module-Reports.html">Reports</a></li><li><a href="module-SalesData.html">SalesData</a></li><li><a href="module-SeasonalSeries.html">SeasonalSeries</a></li><li><a href="module-SeasonalSeriesCashier.html">SeasonalSeriesCashier</a></li><li><a href="module-SlushSeries.html">SlushSeries</a></li><li><a href="module-SlushSeriesCashier.html">SlushSeriesCashier</a></li><li><a href="module-TeaLatteSeries.html">TeaLatteSeries</a></li><li><a href="module-TeaLatteSeriesCashier.html">TeaLatteSeriesCashier</a></li><li><a href="module-ToppingTest.html">ToppingTest</a></li><li><a href="module-Toppings.html">Toppings</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-ZoomControls.html">ZoomControls</a></li><li><a href="module-ZoomProvider.html">ZoomProvider</a></li><li><a href="module-checkoutTab.html">checkoutTab</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:50:00 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

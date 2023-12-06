@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: CashierView.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: CashierView.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file This module defines the CashierView component for the point-of-sale (POS) system.
+ * @module CashierView
+ */
+
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+
+import CheckoutTab from "./checkoutTab";
+import "../styles/POSButtonCashier.css";
+
+/**
+ * Functional component representing the CashierView.
+ *
+ * @returns {JSX.Element} The rendered CashierView component.
+ */
+const CashierView = () => {
+  const [selectedOption] = useState("Sales");
+  const [isCheckoutPopupOpen, setIsCheckoutPopupOpen] = useState(false);
+  const [menuItems] = useState([]);
+  const location = useLocation();
+
+  /**
+   * Handles the click event for the "Checkout" button and opens the checkout popup.
+   */
+  const handleCheckoutClick = () => {
+    setIsCheckoutPopupOpen(true);
+  };
+
+  /**
+   * Closes the checkout popup.
+   */
+  const closeCheckoutPopup = () => {
+    setIsCheckoutPopupOpen(false);
+  };
+
+  return (
+    &lt;div>
+      &lt;h1 className="Title">Cashier View&lt;/h1>
+      &lt;Link to="/" className="GoToHomeButton">
+        Home
+      &lt;/Link>
+      &lt;nav className="navbar">
+        &lt;li
+          className={
+            location.pathname === "/milk-tea-series-cashier" ? "active" : ""
+          }
+        >
+          &lt;Link to="/milk-tea-series-cashier">Milk Tea Series&lt;/Link>
+        &lt;/li>
+        &lt;li
+          className={
+            location.pathname === "/creative-mix-series-cashier" ? "active" : ""
+          }
+        >
+          &lt;Link to="/creative-mix-series-cashier">Creative Mix Series&lt;/Link>
+        &lt;/li>
+        &lt;li
+          className={
+            location.pathname === "/milk-foam-series-cashier" ? "active" : ""
+          }
+        >
+          {" "}
+          &lt;Link to="/milk-foam-series-cashier">Milk Foam Series&lt;/Link>
+        &lt;/li>
+        &lt;li
+          className={
+            location.pathname === "/slush-series-cashier" ? "active" : ""
+          }
+        >
+          &lt;Link to="/slush-series-cashier">Slush Series&lt;/Link>
+        &lt;/li>
+        &lt;li
+          className={
+            location.pathname === "/tea-latte-series-cashier" ? "active" : ""
+          }
+        >
+          &lt;Link to="/tea-latte-series-cashier">Tea Latte Series&lt;/Link>
+        &lt;/li>
+        &lt;li
+          className={
+            location.pathname === "/brewed-tea-series-cashier" ? "active" : ""
+          }
+        >
+          &lt;Link to="/brewed-tea-series-cashier">Brewed Tea Series&lt;/Link>
+        &lt;/li>
+        &lt;li
+          className={
+            location.pathname === "/coffee-series-cashier" ? "active" : ""
+          }
+        >
+          &lt;Link to="/coffee-series-cashier">Coffee Series&lt;/Link>
+        &lt;/li>
+        &lt;li
+          className={
+            location.pathname === "/seasonal-series-cashier" ? "active" : ""
+          }
+        >
+          &lt;Link to="/seasonal-series-cashier">Seasonal Series&lt;/Link>
+        &lt;/li>
+        &lt;li>
+          &lt;button onClick={handleCheckoutClick}>Checkout&lt;/button>
+        &lt;/li>
+        {isCheckoutPopupOpen &amp;&amp; (
+          &lt;CheckoutTab className="checkoutThing" onClose={closeCheckoutPopup} />
+        )}
+      &lt;/nav>
+      &lt;div className="content">&lt;/div>
+    &lt;/div>
+  );
+};
+
+export default CashierView;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-BrewedSeries.html">BrewedSeries</a></li><li><a href="module-BrewedSeriesCashier.html">BrewedSeriesCashier</a></li><li><a href="module-Cart.html">Cart</a></li><li><a href="module-CartService.html">CartService</a></li><li><a href="module-Cashier.html">Cashier</a></li><li><a href="module-CashierView.html">CashierView</a></li><li><a href="module-CoffeeSeries.html">CoffeeSeries</a></li><li><a href="module-CoffeeSeriesCashier.html">CoffeeSeriesCashier</a></li><li><a href="module-CreativeMixSeries.html">CreativeMixSeries</a></li><li><a href="module-CreativeMixSeriesCashier.html">CreativeMixSeriesCashier</a></li><li><a href="module-DeleteTab.html">DeleteTab</a></li><li><a href="module-DrinkSeries.html">DrinkSeries</a></li><li><a href="module-DrinkSeriesCashier.html">DrinkSeriesCashier</a></li><li><a href="module-Form.html">Form</a></li><li><a href="module-GoogleTranslate.html">GoogleTranslate</a></li><li><a href="module-Inventory.html">Inventory</a></li><li><a href="module-ManagerView.html">ManagerView</a></li><li><a href="module-MenuBoard.html">MenuBoard</a></li><li><a href="module-MenuItems.html">MenuItems</a></li><li><a href="module-MilkFoamSeries.html">MilkFoamSeries</a></li><li><a href="module-MilkFoamSeriesCashier.html">MilkFoamSeriesCashier</a></li><li><a href="module-MilkTeaSeries.html">MilkTeaSeries</a></li><li><a href="module-MilkTeaSeriesCashier.html">MilkTeaSeriesCashier</a></li><li><a href="module-NavBar.html">NavBar</a></li><li><a href="module-NotFound.html">NotFound</a></li><li><a href="module-ReportForms.html">ReportForms</a></li><li><a href="module-Reports.html">Reports</a></li><li><a href="module-SalesData.html">SalesData</a></li><li><a href="module-SeasonalSeries.html">SeasonalSeries</a></li><li><a href="module-SeasonalSeriesCashier.html">SeasonalSeriesCashier</a></li><li><a href="module-SlushSeries.html">SlushSeries</a></li><li><a href="module-SlushSeriesCashier.html">SlushSeriesCashier</a></li><li><a href="module-TeaLatteSeries.html">TeaLatteSeries</a></li><li><a href="module-TeaLatteSeriesCashier.html">TeaLatteSeriesCashier</a></li><li><a href="module-ToppingTest.html">ToppingTest</a></li><li><a href="module-Toppings.html">Toppings</a></li><li><a href="module-Weather.html">Weather</a></li><li><a href="module-ZoomControls.html">ZoomControls</a></li><li><a href="module-ZoomProvider.html">ZoomProvider</a></li><li><a href="module-checkoutTab.html">checkoutTab</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Dec 05 2023 23:50:00 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
